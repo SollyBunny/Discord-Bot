@@ -9,12 +9,15 @@
 	client.cmds = [];
 	const ERRORCHECK = false;
 	client.loadcog = (name) => {
-		let cog = require.cache[require.resolve(`./cogs/${name}`)]
+		let cog = require.cache[require.resolve(`./cogs/${name}`)];
 		if (cog) {
-			for (let cmd in cog.cmds) {
+			/*for (let cmd in cog.cmds) {
 				delete client.cmds[cmd];
-			}
-			delete cog;
+			}*/
+			delete require.cache[require.resolve(`./cogs/${name}`)];
+			log(INF, `Reloading cog "${name}"`);
+		} else {
+			log(INF, `Loading cog "${name}"`);
 		}
 		if (ERRORCHECK) {
 			try {
@@ -36,21 +39,32 @@
 			if (file) return file;
 		});
 	};
-	function _embedreply(type, msg, title, fields) {
-		switch (type) {
-			case ERR: type = "#ff0000"; break;
-			case SUC: type = "#00ff00"; break;
-			case WRN: type = "#ffff00"; break;
-			case INF: type = "#0000ff"; break;
-			default : type = "#000000"; break;			
+	function _embedreply(type, {
+		msg    = "", 
+		title  = undefined, 
+		fields = undefined, 
+		thumb  = undefined,
+		color  = undefined
+	}) {
+		let embed = new MessageEmbed();
+		if (color) {
+			embed.setColor(color);
+		} else {
+			switch (type) {
+				case ERR: type = "#ff0000"; break;
+				case SUC: type = "#00ff00"; break;
+				case WRN: type = "#ffff00"; break;
+				case INF: type = "#0000ff"; break;
+				default : type = "#000000"; break;			
+			}
+			embed.setColor(type);
 		}
-		let embed = new MessageEmbed();		
-		embed.setColor(type);
 		if (title)  embed.setDescription(`**${title}**\n${msg}`);
-		else        embed.setDescription(msg);
+		else        embed.setDescription(`${msg}`);
 		if (fields) embed.addFields(...fields);
 		let date = new Date().toString();
-		embed.setFooter({ text: date.slice(0, date.nthindex(date, " ", 6)) });
+		embed.setFooter({ text: date.slice(0, date.nthindex(" ", 6)) });
+		if (thumb) embed.setThumbnail(thumb);
 		try {
 			this.reply       ({ embeds: [embed] });
 		} catch (e) { // if message is deleted
@@ -64,23 +78,23 @@
 		}).then(webhook => {
 			webhook.send({
 				content: msg,
-				username: user.tag
-			}).then(() => {
+				username: user.username
+			}).then((msg) => {
 				webhook.delete();		
 			});
 		});
 		
 	}
 	function _webhooksendfail(msg) {
-		this.embedreply(ERR, 
-			"Missing `MANAGE_WEBHOOKS` permission!"
-		);
+		this.embedreply(ERR, {
+			msg: "Missing `MANAGE_WEBHOOKS` permission!"
+		});
 		return false;
 	}
 	function _deletefail(msg) {
-		this.embedreply(ERR,
-			"Missing `MANAGE_MESSAGES` permission!"
-		);
+		this.embedreply(ERR, {
+			msg: "Missing `MANAGE_MESSAGES` permission!"
+		});
 		return false;
 	}
 
@@ -90,13 +104,14 @@
 		log(INF, `Ready as ${client.user.tag}`);
 	});
 	client.on("messageCreate", async (msg) => { try {
-	
-		if (msg.author === client.user)     return;
+
+		if (!msg.guild.me.permissions.has("SEND_MESSAGES")) return;
+		if (msg.author === client.user) return;
 		msg.embedreply = _embedreply.bind(msg);
-		if (msg.content === client.user.toString()) { client.cmds["help"][2](msg); return; }
+		if (msg.content === client.user.toString()) { client.cmds["help"][2](msg, []); return; }
 		if (msg.content[0] !== CONF.prefix) return;
 
-		console.log(msg.guild.me.permissions.serialize());
+		// console.log(msg.guild.me.permissions.serialize());
 		if (msg.guild.me.permissions.has("MANAGE_WEBHOOKS")) {
 			msg.webhooksend = _webhooksend.bind(msg);
 		} else {
@@ -105,7 +120,7 @@
 		if (!msg.guild.me.permissions.has("MANAGE_MESSAGES")) {
 			msg.delete = _deletefail.bind(msg);
 		}
-		
+
 		let index = msg.content.indexOf(" ");
 		if (index == -1) {
 			cmd = msg.content.slice(1);
@@ -116,40 +131,54 @@
 		}
 		cmd = cmd.toLowerCase();
 		delete index;
+
+		if (!/[a-z]/.test(cmd)) return;
 		
-		log(INF, `Command "${cmd}" by "${msg.author.tag}"`);
+		log(INF, `cmd ${msg.author.tag}: ${msg.content}`);
 		if (client.cmds[cmd]) {
 			if (client.cmds[cmd][1] === false) {
 				try {
 					client.cmds[cmd][2](msg, msg.content);
 				} catch (e) {
 					log(ERR, `Got error "${e}"`);
-					client.cmds[cmd].embedreply(ERR, `\`\`\`${e.stack}\`\`\``, title = "Error");
+					msg.embedreply(ERR, {
+						msg  : `\`\`\`${e.stack}\`\`\``, 
+						title: "Error"
+					});
+					return;
 				}
 			} else {
 				let minargs = 0;
 				let greedy  = false;
 				client.cmds[cmd][1].forEach((i, m) => {
-					if (m % 2 !== 0) return;
-					if (i[0] === "*") return;
-					if (i[0] === "+") greedy = true;
+					if (m % 2 === 0)   return;
+					if (i[0]  === "*") return;
+					if (i[0]  === "+") greedy = true;
 					++minargs;
 				});
 				msg.content = msg.content.split(/(?<!\\) /).map((i) => { return i.replace(/\\ /, ""); });
+				if (msg.content[0] === "") msg.content = []; // stop [""]
 				if (msg.content < minargs) {
-					msg.embedreply(ERR, `Not enough args! (use \`${CONF.prefix}help ${cmd}\`)`);
+					msg.embedreply(ERR, {
+						msg: `Not enough args! (use \`${CONF.prefix}help ${cmd}\`)`
+					});
 					return;
-				} else if (greedy === false && msg.content > cmd[1].length / 2) {
-					msg.embedreply(ERR, `Too many args! (use \`${CONF.prefix}help ${cmd}\`)`);
+				} else if (greedy === false && msg.content.length > client.cmds[cmd][1].length / 2) {
+					msg.embedreply(ERR, {
+						msg: `Too many args! (use \`${CONF.prefix}help ${cmd}\`)`
+					});
 					return;
 				}
 				for (let i = 0; i < client.cmds[cmd][1].length / 2; ++i) {
+					if (msg.content[i] === undefined) break;
 					switch (client.cmds[cmd][1][(i * 2) + 1]) {
 						case "number":
 						case "*number":
 							msg.content[i] = Number(msg.content[i]);
 							if (isNaN(msg.content[i])) {
-								msg.embedreply(ERR, `Invalid Number "${msg.content[i]}"! (use \`${CONF.prefix}help ${cmd}\`)`);
+								msg.embedreply(ERR, {
+									msg: `Invalid Number "${msg.content[i]}"! (use \`${CONF.prefix}help ${cmd}\`)`
+								});
 								return;
 							}
 							break;
@@ -176,7 +205,9 @@
 								else            msg.content[i] = closeu;
 							}
 							if (msg.content[i] === undefined) {
-								msg.embedreply(ERR, `Invalid Username (use \`${CONF.prefix}help ${cmd}\`)`);
+								msg.embedreply(ERR, {
+									msg: `Invalid Username (use \`${CONF.prefix}help ${cmd}\`)`
+								});
 								return;
 							}
 							break;
@@ -189,16 +220,25 @@
 					client.cmds[cmd][2](msg, msg.content);
 				} catch (e) {
 					log(ERR, `Got error "${e}"`);
-					msg.embedreply(ERR, `\`\`\`${e.stack}\`\`\``, title = "Error");
+					msg.embedreply(ERR, {
+						msg  : `\`\`\`${e.stack}\`\`\``,
+						title: "Error"
+					});
+					return;
 				}
 			}
 		} else {
-			msg.embedreply(ERR, `Can't find command "${cmd}"!`);
+			msg.embedreply(ERR, {
+				msg: `Can't find command "${cmd}"!`
+			});
 		}
 		
 	} catch (e) {
-		msg.embedreply(ERR, `\`\`\`${e.stack}\`\`\``, title = "Error");
-	} });
+		msg.embedreply(ERR, {
+			msg  : `\`\`\`${e.stack}\`\`\``,
+			title: "Error"
+		});
+	}});
 
 client.login(CONF.token);
 client.loadallcogs();

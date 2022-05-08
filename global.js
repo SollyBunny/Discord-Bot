@@ -2,14 +2,14 @@
 global.fs   = require("fs");
 global.CONF = require("./conf.json");
 
-String.prototype.nthindex = (str, pat, n) => {
-    let l = str.length, i = -1;
+String.prototype.nthindex = function (pat, n) {
+    let l = this.length, i = 0;
     while (--n && (++i) < l) {
-        i = str.indexOf(pat, i);
+        i = this.indexOf(pat, i);
         if (i < 0) break;
     }
     return i;
-};
+}
 
 global.ERR = 31;
 global.SUC = 32;
