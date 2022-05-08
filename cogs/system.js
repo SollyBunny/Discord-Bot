@@ -45,9 +45,9 @@ module.exports.cmds = {
 			if (args.length === 0) args = [msg.author];
 			msg.guild.members.fetch(args[0].id).then((user) => {
 				let create_date = user.user.createdAt;
-				let join_date = user.joinedAt;
+				let join_date   = user.joinedAt;
 				msg.embedreply(INF, {
-					title : `${args[0].tag}` + (user.nickname ? `(${user.nickname})` : ""),
+					title : `${args[0].tag}` + (user.nickname ? ` (${user.nickname})` : ""),
 					msg   : `id: \`${args[0].id}\``,
 					fields: [
 						{
@@ -66,7 +66,6 @@ module.exports.cmds = {
 					],
 					thumb : args[0].avatarURL({ dynamic: true }),
 					color : user.displayHexColor
-					
 				});
 			});
 		}

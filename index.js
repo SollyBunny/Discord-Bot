@@ -1,7 +1,7 @@
-#!/usr/bin/env node
+'use scrict';
 
 /* Import */
-	const { Client, Intents, MessageEmbed } = require("discord.js");
+	const { Client, Intents, MessageEmbed } = require("discord.js")
 	global.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 	require("./global.js");
 
@@ -131,10 +131,9 @@
 		}
 		cmd = cmd.toLowerCase();
 		delete index;
-
 		if (!/[a-z]/.test(cmd)) return;
 		
-		log(INF, `cmd ${msg.author.tag}: ${msg.content}`);
+		log(INF, `cmd ${msg.author.tag}: ${cmd} d${msg.content}`);
 		if (client.cmds[cmd]) {
 			if (client.cmds[cmd][1] === false) {
 				try {
