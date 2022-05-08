@@ -1,4 +1,5 @@
-'use scrict';
+#!/usr/bin/env node
+"use scrict";
 
 /* Import */
 	const { Client, Intents, MessageEmbed } = require("discord.js")
