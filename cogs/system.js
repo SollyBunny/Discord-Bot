@@ -81,8 +81,16 @@ module.exports.cmds = {
 					});
 					return;
 				}
-				msg.embedreply(INF, {
-					msg: args[0]
+				if (args[0] > 100) {
+					msg.embedreply(WRN, {
+						msg: "Cannot purge more than 100 msgs"
+					});
+					args[0] = 100;
+				}
+				msg.channel.messages.fetch({ limit: args[0] }).then(msgs => {
+					msgs.forEach((i) => {
+						i.delete().catch(() => {});
+					});
 				});
 			});
 			msg.embedreply(INF, {

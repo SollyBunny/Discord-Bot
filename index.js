@@ -134,7 +134,7 @@
 		delete index;
 		if (!/[a-z]/.test(cmd)) return;
 		
-		log(INF, `cmd ${msg.author.tag}: ${cmd} d${msg.content}`);
+		log(INF, `cmd ${msg.author.tag}: ${cmd} ${msg.content}`);
 		if (client.cmds[cmd]) {
 			if (client.cmds[cmd][1] === false) {
 				try {
