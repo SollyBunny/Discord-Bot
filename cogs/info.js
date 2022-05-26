@@ -1,6 +1,7 @@
-const api_dict = "https://api.dictionaryapi.dev/api/v2/entries/en/"
-const api_wiki_1 = "https://en.wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrsearch="
-const api_wiki_2 = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts%7Cpageimages&exintro=1&explaintext=1&exsectionformat=plain&piprop=original&exchars=500&pageids="
+const api_dict = "https://api.dictionaryapi.dev/api/v2/entries/en/";
+const api_wiki_1 = "https://en.wikipedia.org/w/api.php?action=query&format=json&generator=search&gsrsearch=";
+const api_wiki_2 = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts%7Cpageimages&exintro=1&explaintext=1&exsectionformat=plain&piprop=original&exchars=500&pageids=";
+
 const http = require("https");
 
 module.exports.cmds = {
@@ -66,6 +67,36 @@ module.exports.cmds = {
 							});
 						});
 					});
+				});
+			});
+		}
+	], "reddit": [
+		/* Desc */ "Get a hot post from a subreddit",
+		/* Args */ ["Subreddit", "string"],
+		/* Func */ (msg, args) => {
+						// headers: {
+							// "Authorization": `bearer ncWW7X_e6pZNVmLG_5aNboCGqZ1hmA`
+						// },
+			http.get(`https://www.reddit.com/r/${args[0]}/hot.json&limit=5`, (res) => {
+				let body = "meow";
+				res.on("data", chunk => { body += chunk; });
+				res.on("end", () => {
+					body = JSON.parse(body);
+					if (body.error) {
+						msg.embedreply(ERR, {
+							msg: `Got error ${body.error} (${body.message})`
+						});
+						return;
+					}
+					console.log(body);
+					return;
+					body = body[0].data;
+					// body = body[Math.floor(Math.random() * body.length)].data;
+					msg.embedreply(INF, {
+						title: body.subreddit_name_prefixed,
+						
+					});
+					console.log(body);
 				});
 			});
 		}
