@@ -6,28 +6,55 @@ function pollactivity() {
 	log(INF, "Polling activity");
 	let usersdone = [];
 	let d = data.get("activity");
-	let day  = new Date().getDay();
-	let hour = new Date().getHours();
-	console.log(day, hour);
+	let time = (new Date().getDay() + 1* 24) + new Date().getHours();
+	console.log(time, new Date().getDay(), new Date().getHours());
 	client.guilds.cache.forEach((guild) => {
 		guild.members.fetch().then((users) => { users.forEach((user) => {
 			if (usersdone.indexOf(user.id) !== -1) return;
 			guild.members.fetch(user.id).then((user) => {
 				usersdone.push(user.id);
-				if (user.user.bot === true) return;
+				// if (user.user.bot === true) return;
 				if (d[user.id] === undefined) {
 					d[user.id] = [
+					
 						0,
+						0, 0, 0,
 						0, 0, 0, 0,
-						0, 0, 0, 0,
+						
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0, 0, 0, 0, 0, 0,
-						0, 0, 0, 0, 0, 0, 0,
-						0, 0, 0, 0, 0, 0, 0,
-						0, 0, 0, 0, 0, 0, 0,
+						
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 						
 					]
 				}
@@ -38,18 +65,17 @@ function pollactivity() {
 					d[user.id][4] += 1;
 				} else {
 					switch (user.presence.status) {
-						case "offline": status = 3; break;
-						case "idle":    status = 2; break;
-						case "dnd":     status = 1; break;
-						case "online":  status = 0; break;
+						case "offline": status = 0; break;
+						case "idle":    status = 1; break;
+						case "dnd":     status = 2; break;
+						case "online":  status = 3; break;
 					}
+					d[user.id][4 + status] += 1;
 					if      (user.presence.clientStatus["desktop"]) d[user.id][1] += 1;
 					else if (user.presence.clientStatus["web"]    ) d[user.id][2] += 1;
 					else if (user.presence.clientStatus["mobile"] ) d[user.id][3] += 1;
-					else                                            d[user.id][4] += 1;
 				}
-				d[user.id][9 + (4 * hour) + status]             += 1;
-				d[user.id][9 + (4 * 22  ) + status + (4 * day)] += 1;
+				d[user.id][8 + (time * 4) + status] += 1;
 			});
 		});	});
 	});
