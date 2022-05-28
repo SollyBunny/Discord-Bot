@@ -1,20 +1,71 @@
 #!/usr/bin/env node
 "use scrict";
 
+const DATADIR = "./data.json";
+
+global.fs   = require("fs");
+global.CONF = require("./conf.json");
+
+String.prototype.nthindex = function (pat, n) {
+    let l = this.length, i = 0;
+    while (--n && (++i) < l) {
+        i = this.indexOf(pat, i);
+        if (i < 0) break;
+    }
+    return i;
+}
+
+global.ERR = 31;
+global.SUC = 32;
+global.WRN = 33;
+global.INF = 36;
+global.log = (type, msg) => {
+	let a;
+	switch (type) {
+		case ERR: a = "Error"  ; break;
+		case SUC: a = "Success"; break;
+		case WRN: a = "Warn"   ; break;
+		case INF: a = "Info"   ; break;
+		default : a = "Unknown"; break;			
+	}
+	console.log(`\x1b[${type}m[${a}]\x1b[0m ${msg}`);
+}
+
+global.data = {
+	_data: {},
+	read: () => {
+		fs.readFile(DATADIR, (err, data) => {
+			if (err) {
+				global.data._data = {};
+				return;
+			};
+			global.data._data = JSON.parse(data.toString());
+		});
+	},
+	write: () => {
+		fs.writeFileSync(DATADIR, JSON.stringify(global.data._data));
+		log(SUC, "Data saved");
+	},
+	get: (type) => {
+		if (global.data._data[type] === undefined) global.data._data[type] = {};
+		return global.data._data[type];
+	}
+};
+data.read();
+
 /* Import */
-	const { Client, Intents, MessageEmbed } = require("discord.js")
-	global.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
-	require("./global.js");
+	const { Client, Intents, MessageEmbed } = require("discord.js");
+	global.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_PRESENCES] });
 
 /* Built In Funcs */
 	client.cmds = [];
-	const ERRORCHECK = false;
+	const ERRORCHECK = true;
 	client.loadcog = (name) => {
 		let cog = require.cache[require.resolve(`./cogs/${name}`)];
 		if (cog) {
-			/*for (let cmd in cog.cmds) {
+			for (let cmd in cog.cmds) {
 				delete client.cmds[cmd];
-			}*/
+			}
 			delete require.cache[require.resolve(`./cogs/${name}`)];
 			log(INF, `Reloading cog "${name}"`);
 		} else {

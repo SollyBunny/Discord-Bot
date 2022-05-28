@@ -114,5 +114,25 @@ module.exports.cmds = {
 				});
 			}
 		}
+	],
+	"save": [
+		/* Desc */ "Saves data",
+		/* Args */ false,
+		/* Func */ (msg, args) => {
+			data.write();
+			msg.embedreply(SUC, {
+				msg: "Saved data!"
+			});
+		}
+	],
+	"load": [
+		/* Desc */ "Load data",
+		/* Args */ false,
+		/* Func */ (msg, args) => {
+			data.read();
+			msg.embedreply(SUC, {
+				msg: "Load data!"
+			});
+		}
 	]
 };
