@@ -3,17 +3,15 @@ const width = 10;
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function pollactivity() {
-	log(INF, "Polling activity");
+	log(INFO, "Polling activity");
 	let usersdone = [];
 	let d = data.get("activity");
-	let time = (new Date().getDay() + 1* 24) + new Date().getHours();
-	console.log(time, new Date().getDay(), new Date().getHours());
+	let time = (new Date().getDay() * 24) + new Date().getHours();
 	client.guilds.cache.forEach((guild) => {
 		guild.members.fetch().then((users) => { users.forEach((user) => {
 			if (usersdone.indexOf(user.id) !== -1) return;
 			guild.members.fetch(user.id).then((user) => {
 				usersdone.push(user.id);
-				// if (user.user.bot === true) return;
 				if (d[user.id] === undefined) {
 					d[user.id] = [
 					
@@ -89,7 +87,7 @@ module.exports.cmds = {
 			if (args.length === 0) args = [msg.author];
 			let d = data.get("activity")[args[0].id];
 			if (d === undefined) {
-				msg.embedreply(INF, {
+				msg.embedreply(INFO, {
 					msg: "No data found for this user."	
 				});
 				return;
@@ -116,7 +114,7 @@ module.exports.cmds = {
 			}
 
 			total = d[1] + d[2] + d[3];
-			msg.embedreply(INF, {
+			msg.embedreply(INFO, {
 				title: `${args[0].tag}'s activity!`,
 				msg: `${args[0].tag} has been polled ${d[0]} times`,
 				fields: [{
@@ -130,7 +128,7 @@ module.exports.cmds = {
 					value: String(daily)
 				}]
 			});
-			console.log(d);
+
 		}
 	],
 	"getpresence": [
@@ -139,7 +137,7 @@ module.exports.cmds = {
 	/* Func */ (msg, args) => {
 		if (args.length === 0) args = [msg.author];
 		msg.guild.members.fetch(args[0].id).then((user) => {
-			msg.embedreply(INF, {
+			msg.embedreply(INFO, {
 				title : `${args[0].tag}` + (user.nickname ? ` (${user.nickname})` : ""),
 				fields: [
 					{
@@ -161,7 +159,7 @@ module.exports.cmds = {
 		/* Args */ false,
 		/* Func */ (msg, args) => {
 			pollactivity();
-			msg.embedreply(SUC, {
+			msg.embedreply(GOOD, {
 				msg: "Done!"	
 			});
 		}

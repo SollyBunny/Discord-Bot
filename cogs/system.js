@@ -4,7 +4,7 @@ module.exports.cmds = {
 		/* Args */ ["Command", "*string"],
 		/* Func */ (msg, args) => {
 			if (args.length === 0) {
-				msg.embedreply(INF, {
+				msg.embedreply(INFO, {
 					msg   :`Use ${CONF.prefix}help <command>`,
 					title : "Help",
 					fields: Object.keys(client.cmds).map((i) => {
@@ -18,12 +18,12 @@ module.exports.cmds = {
 			} else {
 				args[0] = args[0].toLowerCase();
 				if (client.cmds[args[0]]) {
-					msg.embedreply(INF, {
+					msg.embedreply(INFO, {
 						msg  : `${client.cmds[args[0]][0]}\n${(client.cmds[args[0]][1] || ["No args"]).join(" ")}`, 
 						title: `${CONF.prefix}${args[0]}`
 					});
 				} else {
-					msg.embedreply(ERR, {
+					msg.embedreply(FATL, {
 						msg: `Can't find command "${args[0]}"!`	
 					});
 				}
@@ -46,7 +46,7 @@ module.exports.cmds = {
 			msg.guild.members.fetch(args[0].id).then((user) => {
 				let create_date = user.user.createdAt;
 				let join_date   = user.joinedAt;
-				msg.embedreply(INF, {
+				msg.embedreply(INFO, {
 					title : `${args[0].tag}` + (user.nickname ? ` (${user.nickname})` : ""),
 					msg   : `id: \`${args[0].id}\``,
 					fields: [
@@ -76,13 +76,13 @@ module.exports.cmds = {
 		/* Func */ (msg, args) => {
 			msg.guild.members.fetch(msg.author.id).then((user) => {
 				if (!user.permissions.has("MANAGE_MESSAGES")) {
-					msg.embedreply(ERR, {
+					msg.embedreply(FATL, {
 						msg: "You are missing `MANAGE_MESSAGES` permission!"
 					});
 					return;
 				}
 				if (args[0] > 100) {
-					msg.embedreply(WRN, {
+					msg.embedreply(WARN, {
 						msg: "Cannot purge more than 100 msgs"
 					});
 					args[0] = 100;
@@ -104,12 +104,12 @@ module.exports.cmds = {
 		/* Func */ (msg, args) => {
 			let e = client.loadallcogs();
 			if (e) {
-				msg.embedreply(ERR, {
+				msg.embedreply(FATL, {
 					msg  : `\`\`\`${e.stack}\`\`\``,
 					title: "Error"
 				});
 			} else {
-				msg.embedreply(SUC, {
+				msg.embedreply(GOOD, {
 					msg: "Reloaded all cogs!"
 				});
 			}
@@ -120,7 +120,7 @@ module.exports.cmds = {
 		/* Args */ false,
 		/* Func */ (msg, args) => {
 			data.write();
-			msg.embedreply(SUC, {
+			msg.embedreply(GOOD, {
 				msg: "Saved data!"
 			});
 		}
@@ -130,7 +130,7 @@ module.exports.cmds = {
 		/* Args */ false,
 		/* Func */ (msg, args) => {
 			data.read();
-			msg.embedreply(SUC, {
+			msg.embedreply(GOOD, {
 				msg: "Load data!"
 			});
 		}

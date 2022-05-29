@@ -15,20 +15,22 @@ String.prototype.nthindex = function (pat, n) {
     return i;
 }
 
-global.ERR = 31;
-global.SUC = 32;
-global.WRN = 33;
-global.INF = 36;
+global.INFO = 36; // Cyan
+global.WARN = 33; // Yellow
+global.FATL = 31; // Red
+global.GOOD = 32; // Green
+global.MISC = 35; // Magenta
 global.log = (type, msg) => {
-	let a;
+	let name;
 	switch (type) {
-		case ERR: a = "Error"  ; break;
-		case SUC: a = "Success"; break;
-		case WRN: a = "Warn"   ; break;
-		case INF: a = "Info"   ; break;
-		default : a = "Unknown"; break;			
+		case INFO: name = "INFO"; break;
+		case WARN: name = "WARN"; break;
+		case FATL: name = "FATL"; break;
+		case GOOD: name = "GOOD"; break;
+		case MISC: name = "MISC"; break;
+		default  : name = "UNKN"; break;			
 	}
-	console.log(`\x1b[${type}m[${a}]\x1b[0m ${msg}`);
+	console.log(`\x1b[${type}m[${name}]\x1b[0m ${msg}`);
 }
 
 global.data = {
@@ -44,7 +46,7 @@ global.data = {
 	},
 	write: () => {
 		fs.writeFileSync(DATADIR, JSON.stringify(global.data._data));
-		log(SUC, "Data saved");
+		log(GOOD, "Data saved");
 	},
 	get: (type) => {
 		if (global.data._data[type] === undefined) global.data._data[type] = {};
@@ -67,15 +69,15 @@ data.read();
 				delete client.cmds[cmd];
 			}
 			delete require.cache[require.resolve(`./cogs/${name}`)];
-			log(INF, `Reloading cog "${name}"`);
+			log(INFO, `Reloading cog "${name}"`);
 		} else {
-			log(INF, `Loading cog "${name}"`);
+			log(INFO, `Loading cog "${name}"`);
 		}
 		if (ERRORCHECK) {
 			try {
 				cog = require(`./cogs/${name}`);
 			} catch (e) {
-				log(ERR, `Loading module "${name}" got error "${e}"`);
+				log(FATL, `Loading module "${name}" got error "${e}"`);
 				return e;
 			}
 		} else {
@@ -103,11 +105,12 @@ data.read();
 			embed.setColor(color);
 		} else {
 			switch (type) {
-				case ERR: type = "#ff0000"; break;
-				case SUC: type = "#00ff00"; break;
-				case WRN: type = "#ffff00"; break;
-				case INF: type = "#0000ff"; break;
-				default : type = "#000000"; break;			
+				case INFO: type = "#00ffff"; break;
+				case WARN: type = "#ffaa00"; break;
+				case FATL: type = "#ff0000"; break;
+				case GOOD: type = "#00ff00"; break;
+				case MISC: type = "#ff00ff"; break;
+				default  : type = "#000000"; break;		
 			}
 			embed.setColor(type);
 		}
@@ -115,7 +118,11 @@ data.read();
 		else        embed.setDescription(`${msg}`);
 		if (fields) embed.addFields(...fields);
 		let date = new Date().toString();
-		embed.setFooter({ text: date.slice(0, date.nthindex(" ", 6)) });
+		embed.setTimestamp();
+		embed.setFooter({
+			text   : `Requested by ${this.author.tag}`,
+			iconURL: this.author.avatarURL()
+		});
 		if (thumb) embed.setThumbnail(thumb);
 		try {
 			this.reply       ({ embeds: [embed] });
@@ -138,13 +145,13 @@ data.read();
 		
 	}
 	function _webhooksendfail(msg) {
-		this.embedreply(ERR, {
+		this.embedreply(FATL, {
 			msg: "Missing `MANAGE_WEBHOOKS` permission!"
 		});
 		return false;
 	}
 	function _deletefail(msg) {
-		this.embedreply(ERR, {
+		this.embedreply(FATL, {
 			msg: "Missing `MANAGE_MESSAGES` permission!"
 		});
 		return false;
@@ -153,7 +160,7 @@ data.read();
 /* Client Events */
 	client.on("ready", () => {
 		client.user.setActivity("Ping me to get help!", {type: "PLAYING"});
-		log(INF, `Ready as ${client.user.tag}`);
+		log(GOOD, `Ready as ${client.user.tag}`);
 	});
 	client.on("messageCreate", async (msg) => { try {
 
@@ -185,14 +192,14 @@ data.read();
 		delete index;
 		if (!/[a-z]/.test(cmd)) return;
 		
-		log(INF, `cmd ${msg.author.tag}: ${cmd} ${msg.content}`);
+		log(INFO, `cmd ${msg.author.tag}: ${cmd} ${msg.content}`);
 		if (client.cmds[cmd]) {
 			if (client.cmds[cmd][1] === false) {
 				try {
 					client.cmds[cmd][2](msg, msg.content);
 				} catch (e) {
-					log(ERR, `Got error "${e}"`);
-					msg.embedreply(ERR, {
+					log(FATL, `Got error "${e}"`);
+					msg.embedreply(FATL, {
 						msg  : `\`\`\`${e.stack}\`\`\``, 
 						title: "Error"
 					});
@@ -210,12 +217,12 @@ data.read();
 				msg.content = msg.content.split(/(?<!\\) /).map((i) => { return i.replace(/\\ /, ""); });
 				if (msg.content[0] === "") msg.content = []; // stop [""]
 				if (msg.content < minargs) {
-					msg.embedreply(ERR, {
+					msg.embedreply(FATL, {
 						msg: `Not enough args! (use \`${CONF.prefix}help ${cmd}\`)`
 					});
 					return;
 				} else if (greedy === false && msg.content.length > client.cmds[cmd][1].length / 2) {
-					msg.embedreply(ERR, {
+					msg.embedreply(FATL, {
 						msg: `Too many args! (use \`${CONF.prefix}help ${cmd}\`)`
 					});
 					return;
@@ -227,7 +234,7 @@ data.read();
 						case "*number":
 							msg.content[i] = Number(msg.content[i]);
 							if (isNaN(msg.content[i])) {
-								msg.embedreply(ERR, {
+								msg.embedreply(FATL, {
 									msg: `Invalid Number "${msg.content[i]}"! (use \`${CONF.prefix}help ${cmd}\`)`
 								});
 								return;
@@ -256,7 +263,7 @@ data.read();
 								else            msg.content[i] = closeu;
 							}
 							if (msg.content[i] === undefined) {
-								msg.embedreply(ERR, {
+								msg.embedreply(FATL, {
 									msg: `Invalid Username (use \`${CONF.prefix}help ${cmd}\`)`
 								});
 								return;
@@ -270,8 +277,8 @@ data.read();
 				try {
 					client.cmds[cmd][2](msg, msg.content);
 				} catch (e) {
-					log(ERR, `Got error "${e}"`);
-					msg.embedreply(ERR, {
+					log(FATL, `Got error "${e}"`);
+					msg.embedreply(FATL, {
 						msg  : `\`\`\`${e.stack}\`\`\``,
 						title: "Error"
 					});
@@ -279,13 +286,13 @@ data.read();
 				}
 			}
 		} else {
-			msg.embedreply(ERR, {
+			msg.embedreply(FATL, {
 				msg: `Can't find command "${cmd}"!`
 			});
 		}
 		
 	} catch (e) {
-		msg.embedreply(ERR, {
+		msg.embedreply(FATL, {
 			msg  : `\`\`\`${e.stack}\`\`\``,
 			title: "Error"
 		});
@@ -293,3 +300,16 @@ data.read();
 
 client.login(CONF.token);
 client.loadallcogs();
+
+let triedexit = 0;
+function exit() {
+	if (triedexit === 1) {
+		log(FATL, `Server Force Shutting Down`);
+	}
+	triedexit = 1;
+	if (client.readyAt !== undefined) client.destroy();
+	data.write();
+	process.removeListener("SIGINT", exit);
+	log(INFO, `Bot Shutting Down`);
+}
+process.on("SIGINT", exit);

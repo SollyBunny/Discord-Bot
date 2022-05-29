@@ -15,11 +15,11 @@ module.exports.cmds = {
 				res.on("end", () => {
 					body = JSON.parse(body);
 					if (body.message) {
-						msg.embedreply(ERR, {
+						msg.embedreply(FATL, {
 							msg: `No definitions found for "${args[0]}"`
 						});
 					} else {
-						msg.embedreply(INF, {
+						msg.embedreply(INFO, {
 							msg: body[0].meanings.map((i) => {
 								return `**${i.partOfSpeech}:**\n` + i.definitions.map((m, j) => {
 									return ((i.definitions.length > 1) ? `**${j + 1}** ` : "") + `${m.definition}` + (m.example ? `\n> *${m.example}*` : "");
@@ -42,7 +42,7 @@ module.exports.cmds = {
 					let out = [];
 					body = JSON.parse(body);
 					if (body.query === undefined) {
-						msg.embedreply(WRN, {
+						msg.embedreply(FATL, {
 							msg: `No pages found for "${args[0]}"`
 						});
 						return;
@@ -60,7 +60,7 @@ module.exports.cmds = {
 							body.extract = `See more: <https://wikipedia.com/wiki/${out[0][1].replace(/ /g, '_')}>\n\n*Disambiguation: ` + out.slice(1).map((i) => {
 								return `${i[1]}`;
 							}).join(", ") + "*\n\n" + body.extract;
-							msg.embedreply(INF, {
+							msg.embedreply(INFO, {
 								msg: body.extract,
 								title: body.title,
 								thumb: body.original ? body.original.source	: undefined
@@ -83,7 +83,7 @@ module.exports.cmds = {
 				res.on("end", () => {
 					body = JSON.parse(body);
 					if (body.error) {
-						msg.embedreply(ERR, {
+						msg.embedreply(FATL, {
 							msg: `Got error ${body.error} (${body.message})`
 						});
 						return;
@@ -92,7 +92,7 @@ module.exports.cmds = {
 					return;
 					body = body[0].data;
 					// body = body[Math.floor(Math.random() * body.length)].data;
-					msg.embedreply(INF, {
+					msg.embedreply(INFO, {
 						title: body.subreddit_name_prefixed,
 						
 					});

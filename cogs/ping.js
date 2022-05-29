@@ -3,7 +3,7 @@ module.exports.cmds = {
 		/* Desc */ "Gets ping",
 		/* Args */ false,
 		/* Func */ (msg, args) => {
-			msg.embedreply(INF, {
+			msg.embedreply(INFO, {
 				msg  :`${Date.now() - msg.createdTimestamp}ms`,
 				title: "Pong!"
 			});
@@ -13,7 +13,7 @@ module.exports.cmds = {
 		/* Desc */ "Gets ping",
 		/* Args */ false,
 		/* Func */ (msg, args) => {
-			msg.embedreply(INF, {
+			msg.embedreply(INFO, {
 				msg  : `${Date.now() - msg.createdTimestamp}ms`,
 				title: "Ping!"
 			});

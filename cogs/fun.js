@@ -12,7 +12,7 @@ module.exports.cmds = {
 					break;
 				default: break;
 			}
-			msg.embedreply(INF, {
+			msg.embedreply(INFO, {
 				msg: Math.floor((Math.random() * (args[1] + 1 - args[0])) + args[0])
 			});
 		}
@@ -27,17 +27,17 @@ module.exports.cmds = {
 			]).filter(isFinite);
 			switch (ans.length) {
 				case 0:
-					msg.embedreply(INF, {
+					msg.embedreply(INFO, {
 						msg: "There are no real solutions"	
 					});
 					break;
 				case 1:
-					msg.embedreply(INF, {
+					msg.embedreply(INFO, {
 						msg: `There is 1 real solution:\n> x = ${ans[0]}`
 					});
 					break;
 				case 2:
-					msg.embedreply(INF, {
+					msg.embedreply(INFO, {
 						msg: `There are 2 real solutions:\n> x = ${ans[0]} or ${ans[1]}`
 					});
 					break;

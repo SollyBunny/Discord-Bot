@@ -4,7 +4,7 @@ module.exports.cmds = {
 		/* Desc */ "Python",
 		/* Args */ ["Code", "+string"],
 		/* Func */ (msg, args) => {
-			msg.embedreply(WRN, {
+			msg.embedreply(WARN, {
 				msg: "not implemented yet ):"
 			});
 		}
@@ -14,7 +14,7 @@ module.exports.cmds = {
 		/* Args */ ["Code", "+string"],
 		/* Func */ (msg, args) => {
 			msg.embedreply(WRN, {
-				msg: "not implemented yet ): (so unsecure)"
+				msg: "not WARN yet ): (so unsecure)"
 			});
 			return;
 			let dir = `./data/jail/${Date.now()}/`;
@@ -30,7 +30,7 @@ module.exports.cmds = {
 				out += `${data}\n`;
 			});
 			proc.on("close", (code) => {
-				msg.embedreply(INF, {
+				msg.embedreply(INFO, {
 					msg: `Process exited with code ${code}\n\`\`\`${out}\`\`\``
 				});
 				fs.rm(dir, { recursive: true });
